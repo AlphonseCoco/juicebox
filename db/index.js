@@ -97,7 +97,7 @@ const client = new Client('postgres://localhost:5432/juicebox-dev');
     }
   }
 
-  async function updatePost( id,  fields = {}
+  async function updatePost( postId,  fields = {}
     // { title, content, active }
   ) {
     const { tags } = fields;
@@ -115,7 +115,7 @@ const client = new Client('postgres://localhost:5432/juicebox-dev');
         await client.query(`
           UPDATE posts
           SET ${setString}
-          WHERE id= ${ id }
+          WHERE id= ${ postId }
           RETURNING *;
         `, Object.values(fields));
     }
@@ -145,7 +145,7 @@ const client = new Client('postgres://localhost:5432/juicebox-dev');
 
   async function getAllPosts () {
     try {
-        const { rows}= await client.query(
+        const { rows: postIds }= await client.query(
             `SELECT id
             FROM posts;
             `);
@@ -184,7 +184,7 @@ const client = new Client('postgres://localhost:5432/juicebox-dev');
     }
 
     const insertValues = tagList.map(
-        (_, index) => `$${index +1}`).join('(, )');
+        (_, index) => `$${index +1}`).join('), (');
 
     const selectValues = tagList.map(
         (_, index) => `$${index + 1}`).join(', ');
@@ -272,6 +272,24 @@ async function getPostById(postId) {
     }
 }
 
+async function getPostsByTagName(tagName) {
+    try{
+        const {rows: postIds} = await client.query(`
+        SELECT posts.id
+        FROM posts
+        JOIN post_tags ON posts.id=post_tags."postId"
+        JOIN tags ON tags.id=post_tags."tagId"
+        WHERE tags.name=$1;
+        `,[tagName]);
+
+        return await Promise.all(postIds.map(
+            post => getPostById(post.id)
+        ));
+    }catch(error) {
+        throw error;
+    }
+}
+
 
 
 module.exports = {
@@ -287,5 +305,6 @@ module.exports = {
     getPostById,
     addTagstoPost,
     createTags,
-    createPostTag
+    createPostTag,
+    getPostsByTagName
 }

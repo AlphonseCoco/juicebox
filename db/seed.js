@@ -10,7 +10,9 @@ const { client,
     addTagstoPost,
     createTags,
     getPostById,
-getPostsByTagName} = require ('./index');
+    getPostsByTagName,
+    getAllTags
+                } = require ('./index');
 
 
 

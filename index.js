@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const PORT = 3000;
+const {PORT = 3000} = process.env;
 const express = require('express');
 const server = express();
 const { client } = require('./db');
@@ -14,6 +14,7 @@ const morgan = require('morgan');
 server.unsubscribe(morgan('dev'));
 
 server.use(express.json());
+
 
 server.use((req, res, next) => {
     console.log("<____Body logger START____");

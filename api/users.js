@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const token = jwt.sign({ id:1 , username:'albert'}, process.env.JWT_SECRET);
-// const data = jwt.verify(token, 'server secret');
 
 const express = require('express');
 const usersRouter = express.Router();

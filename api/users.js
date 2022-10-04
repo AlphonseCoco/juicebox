@@ -77,5 +77,27 @@ usersRouter.post('/register', async (req, res, next) =>{
         }
     })
 
+usersRouter.delete('/:userId', async (req, res, next) =>{
+    try {
+        const user = await getUserByUsername(req.params.userId);
+
+        if (user && user.id === req.user.id) {
+            const updatedUser = await getAllUsers(user.id, {active: false});
+
+            res.send({ user: updatedUser});
+        } else {
+            next ( user ? {
+                name: "UnauthorizedUserError",
+                message: "You cannot delete a user that is not you"
+            } : {
+                name: "PostNotFoundError",
+                message: "This user does not exist"
+            });
+        }
+
+    } catch ({ name, message }) {
+        next ({ name, message})
+    }
+})
 
 module.exports = usersRouter;
